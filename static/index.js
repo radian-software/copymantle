@@ -22,6 +22,8 @@ const formatPercentile = (sim, pct) => {
   return "(cold)";
 };
 
+let haveFinishedSetup = false;
+
 const submitGuess = () => {
   const input = document.getElementById("guess");
   ws.send(JSON.stringify({ msg: "guess", guess: input.value }));
@@ -33,6 +35,17 @@ const showMessage = (text) => {
 };
 
 let numGuesses = 0;
+let setupDone = false;
+
+const resortTable = () => {
+  for (const className of ["sorttable_sorted", "sorttable_sorted_reverse"]) {
+    document.querySelectorAll(`.${className}`).forEach((elt) => {
+      elt.classList.remove(className);
+    });
+  }
+  sorttable.innerSortFunction.apply(document.getElementById("similarity"), []);
+  sorttable.innerSortFunction.apply(document.getElementById("similarity"), []);
+};
 
 ws.onmessage = (msg) => {
   msg = JSON.parse(msg.data);
@@ -53,6 +66,9 @@ ws.onmessage = (msg) => {
       }
       document.querySelector("tbody").appendChild(row);
       showMessage("");
+      if (setupDone) {
+        resortTable();
+      }
       break;
     case "badword":
       showMessage(`Unknown word: ${msg.guess}`);
@@ -60,6 +76,10 @@ ws.onmessage = (msg) => {
     case "error":
       console.error(msg.error);
       alert(`unexpected error: ${msg.error}`);
+      break;
+    case "setup":
+      resortTable();
+      setupDone = true;
       break;
     default:
       console.error("bad msg type");

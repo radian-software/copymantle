@@ -18,6 +18,10 @@ app.get("/index.js", (_req, res) => {
   res.sendFile(`${thisDir}/static/index.js`);
 });
 
+app.get("/sorttable.js", (_req, res) => {
+  res.sendFile(`${thisDir}/static/sorttable.js`);
+});
+
 const vectorSum = (vec) => {
   let sum = 0;
   for (const x of vec) {
@@ -95,6 +99,7 @@ app.use("/api/v0/websocket", async (req, res) => {
     for (const guess of game.guesses) {
       ws.send(JSON.stringify({ msg: "guess", guess: guess }));
     }
+    ws.send(JSON.stringify({ msg: "setup" }));
     ws.on("close", () => {
       game.conns = game.conns.filter((conn) => conn !== ws);
     });

@@ -1,7 +1,7 @@
 "use strict";
 
 let proto = "ws";
-if (location.protocol === "https") {
+if (location.protocol === "https:") {
   proto = "wss";
 }
 

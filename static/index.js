@@ -5,10 +5,15 @@ if (location.protocol === "https:") {
   proto = "wss";
 }
 
+let connectionLost = false;
+
 const ws = new WebSocket(
   `${proto}://${location.host}/api/v0/websocket` + location.search,
 );
-ws.onclose = console.error;
+ws.onclose = () => {
+  connectionLost = true;
+  showMessage("Connection lost, please reload page");
+};
 ws.onerror = console.error;
 ws.onmessage = console.log;
 
@@ -27,6 +32,9 @@ let haveFinishedSetup = false;
 let alreadyGuessed = new Set();
 
 const submitGuess = () => {
+  if (connectionLost) {
+    return;
+  }
   const input = document.getElementById("guess");
   if (alreadyGuessed.has(input.value)) {
     showMessage(`Already guessed: ${input.value}`);

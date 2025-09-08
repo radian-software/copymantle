@@ -87,7 +87,7 @@ app.use("/api/v0/websocket", async (req, res) => {
     };
     games[req.query.team] = game;
     for (const guess of game.guesses) {
-      ws.send(JSON.stringify(guess));
+      ws.send(JSON.stringify({ msg: "guess", guess: guess }));
     }
     ws.on("close", () => {
       game.conns = game.conns.filter((conn) => conn !== ws);
@@ -106,7 +106,7 @@ app.use("/api/v0/websocket", async (req, res) => {
               msg.guess,
             );
             game.guesses.push(guessResult);
-            const toSend = JSON.stringify(guessResult);
+            const toSend = JSON.stringify({ msg: "guess", guess: guessResult });
             for (const conn of game.conns) {
               conn.send(toSend);
             }

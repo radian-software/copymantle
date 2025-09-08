@@ -15,21 +15,38 @@ const formatPercentile = (sim, pct) => {
   return "(cold)";
 };
 
+const submitGuess = () => {
+  const guess = document.getElementById("guess").value;
+  ws.send(JSON.stringify({ msg: "guess", guess: guess }));
+};
+
 let numGuesses = 0;
 
 ws.onmessage = (msg) => {
   msg = JSON.parse(msg.data);
-  numGuesses += 1;
-  const row = document.createElement("tr");
-  for (const elt of [
-    numGuesses,
-    msg.guess,
-    msg.similarity.toFixed(2),
-    formatPercentile(msg.similarity, msg.percentile),
-  ]) {
-    const cell = document.createElement("td");
-    cell.appendChild(document.createTextNode(elt));
-    row.appendChild(cell);
+  switch (msg.msg) {
+    case "guess":
+      const guess = msg.guess;
+      numGuesses += 1;
+      const row = document.createElement("tr");
+      for (const elt of [
+        numGuesses,
+        guess.guess,
+        guess.similarity.toFixed(2),
+        formatPercentile(guess.similarity, guess.percentile),
+      ]) {
+        const cell = document.createElement("td");
+        cell.appendChild(document.createTextNode(elt));
+        row.appendChild(cell);
+      }
+      document.querySelector("tbody").appendChild(row);
+      break;
+    case "error":
+      console.error(msg.error);
+      alert(`unexpected error: ${msg.error}`);
+      break;
+    default:
+      console.error("bad msg type");
+      break;
   }
-  document.querySelector("tbody").appendChild(row);
 };

@@ -94,6 +94,7 @@ app.use("/api/v0/websocket", async (req, res) => {
       answer: answer,
       answerVector: (await getSemantleAPI(answer, answer)).vec,
       guesses: [],
+      alreadyGuessed: new Set(),
     };
     games[req.query.team] = game;
     for (const guess of game.guesses) {
@@ -111,15 +112,20 @@ app.use("/api/v0/websocket", async (req, res) => {
         msg = JSON.parse(msg);
         switch (msg.msg) {
           case "guess":
+            const guess = msg.guess.toLowerCase();
+            if (game.alreadyGuessed.has(guess)) {
+              break;
+            }
             const guessResult = await checkSimilarity(
               game.answer,
               game.answerVector,
-              msg.guess.toLowerCase(),
+              guess,
             );
             if (!guessResult) {
               ws.send(JSON.stringify({ msg: "badword", guess: msg.guess }));
               break;
             }
+            game.alreadyGuessed.add(guessResult.guess);
             game.guesses.push(guessResult);
             const toSend = JSON.stringify({ msg: "guess", guess: guessResult });
             for (const conn of game.conns) {

@@ -24,8 +24,14 @@ const formatPercentile = (sim, pct) => {
 
 let haveFinishedSetup = false;
 
+let alreadyGuessed = new Set();
+
 const submitGuess = () => {
   const input = document.getElementById("guess");
+  if (alreadyGuessed.has(input.value)) {
+    showMessage(`Already guessed: ${input.value}`);
+    return;
+  }
   ws.send(JSON.stringify({ msg: "guess", guess: input.value }));
   input.value = "";
 };
@@ -52,6 +58,10 @@ ws.onmessage = (msg) => {
   switch (msg.msg) {
     case "guess":
       const guess = msg.guess;
+      if (alreadyGuessed.has(guess)) {
+        break;
+      }
+      alreadyGuessed.add(guess.guess);
       numGuesses += 1;
       const row = document.createElement("tr");
       for (const elt of [

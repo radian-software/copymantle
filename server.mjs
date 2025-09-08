@@ -10,8 +10,12 @@ const thisDir = path.dirname(url.fileURLToPath(import.meta.url));
 const app = express();
 app.use(tinyws());
 
-app.get("/", (_req, res) => {
-  res.sendFile(`${thisDir}/static/index.html`);
+app.get("/", (req, res) => {
+  if (req.query.team) {
+    res.sendFile(`${thisDir}/static/game.html`);
+  } else {
+    res.sendFile(`${thisDir}/static/start.html`);
+  }
 });
 
 app.get("/index.js", (_req, res) => {
@@ -73,6 +77,26 @@ const checkSimilarity = async (answerWord, answerVector, guessWord) => {
   );
 };
 
+let secretWords = null;
+
+const getSecretWord = async () => {
+  if (!secretWords) {
+    const resp = await fetch(
+      "https://legacy.semantle.com/assets/js/secretWords.js",
+    );
+    if (!resp.ok) {
+      throw new Error(`Bad secretWords.js status ${resp.status}`);
+    }
+    const js = await resp.text();
+    secretWords = JSON.parse(
+      js.replace(/^secretWords = /, "").replace(/,\n\]/, "]"),
+    );
+  }
+  const today = Math.floor(Date.now() / (86400 * 1000));
+  const puzzleNumber = today - 19021;
+  return secretWords[puzzleNumber % secretWords.length];
+};
+
 const games = {};
 
 app.use("/api/v0/websocket", async (req, res) => {
@@ -88,7 +112,7 @@ app.use("/api/v0/websocket", async (req, res) => {
       ws.close();
       return;
     }
-    const answer = "revelation";
+    const answer = await getSecretWord();
     const game = games[req.query.team] || {
       conns: [],
       answer: answer,

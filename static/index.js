@@ -6,7 +6,7 @@ if (location.protocol === "https:") {
 }
 
 const ws = new WebSocket(
-  `${proto}://${location.host}/api/v0/websocket?team=siena`,
+  `${proto}://${location.host}/api/v0/websocket` + location.search,
 );
 ws.onclose = console.error;
 ws.onerror = console.error;

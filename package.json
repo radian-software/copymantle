@@ -1,0 +1,10 @@
+{
+  "name": "copymantle",
+  "version": "1.0.0",
+  "author": "Radian LLC <contact+copymantle@radian.codes>",
+  "license": "MIT",
+  "description": "Semantle ripoff",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

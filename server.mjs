@@ -51,16 +51,22 @@ const getSemantleAPI = async (answerWord, guessWord) => {
   if (!resp.ok) {
     throw new Error(`Bad status ${resp.status}`);
   }
-  return await resp.json();
+  const respText = await resp.text();
+  if (respText.length === 0) {
+    return null;
+  }
+  return JSON.parse(respText);
 };
 
 const checkSimilarity = async (answerWord, answerVector, guessWord) => {
   const data = await getSemantleAPI(answerWord, guessWord);
-  return {
-    guess: guessWord,
-    similarity: cosineSimilarity(data.vec, answerVector) * 100,
-    percentile: data.percentile,
-  };
+  return (
+    data && {
+      guess: guessWord,
+      similarity: cosineSimilarity(data.vec, answerVector) * 100,
+      percentile: data.percentile,
+    }
+  );
 };
 
 const games = {};
@@ -103,8 +109,12 @@ app.use("/api/v0/websocket", async (req, res) => {
             const guessResult = await checkSimilarity(
               game.answer,
               game.answerVector,
-              msg.guess,
+              msg.guess.toLowerCase(),
             );
+            if (!guessResult) {
+              ws.send(JSON.stringify({ msg: "badword", guess: msg.guess }));
+              break;
+            }
             game.guesses.push(guessResult);
             const toSend = JSON.stringify({ msg: "guess", guess: guessResult });
             for (const conn of game.conns) {
@@ -113,6 +123,7 @@ app.use("/api/v0/websocket", async (req, res) => {
             break;
           default:
             ws.send(JSON.stringify({ msg: "error", error: "bad msg type" }));
+            break;
         }
       } catch (err) {
         ws.send(JSON.stringify({ msg: "error", error: "internal error" }));

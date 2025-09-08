@@ -11,9 +11,10 @@
   <body>
     <form action="javascript:submitGuess()">
       <label for="guess">Guess:</label>
-      <input id="guess" name="guess" type="text" />
+      <input id="guess" name="guess" type="text" autocomplete="off" autofocus />
       <input type="submit" value="Submit" />
     </form>
+    <div id="message"></div>
     <table>
       <thead>
         <tr>

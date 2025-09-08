@@ -23,8 +23,13 @@ const formatPercentile = (sim, pct) => {
 };
 
 const submitGuess = () => {
-  const guess = document.getElementById("guess").value;
-  ws.send(JSON.stringify({ msg: "guess", guess: guess }));
+  const input = document.getElementById("guess");
+  ws.send(JSON.stringify({ msg: "guess", guess: input.value }));
+  input.value = "";
+};
+
+const showMessage = (text) => {
+  document.getElementById("message").innerText = text;
 };
 
 let numGuesses = 0;
@@ -47,6 +52,10 @@ ws.onmessage = (msg) => {
         row.appendChild(cell);
       }
       document.querySelector("tbody").appendChild(row);
+      showMessage("");
+      break;
+    case "badword":
+      showMessage(`Unknown word: ${msg.guess}`);
       break;
     case "error":
       console.error(msg.error);

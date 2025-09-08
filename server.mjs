@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as path from "path";
 import * as process from "process";
 import * as url from "url";
@@ -19,29 +18,50 @@ app.get("/index.js", (_req, res) => {
   res.sendFile(`${thisDir}/static/index.js`);
 });
 
-app.get("/api/v0/similarity", async (req, res) => {
-  const answerWord = req.query.word1;
-  const guessWord = req.query.word2;
-  if (
-    !answerWord ||
-    !guessWord ||
-    Array.isArray(answerWord) ||
-    Array.isArray(guessWord)
-  ) {
-    res.sendStatus(400);
-    return;
+const vectorSum = (vec) => {
+  let sum = 0;
+  for (const x of vec) {
+    sum += x;
   }
+  return sum;
+};
+
+const vectorMagnitude = (vec) => {
+  return Math.sqrt(vectorSum(vec.map((x) => x * x)));
+};
+
+const dotProduct = (vec1, vec2) => {
+  let sum = 0;
+  for (let idx = 0; idx < Math.min(vec1.length, vec2.length); idx++) {
+    sum += vec1[idx] * vec2[idx];
+  }
+  return sum;
+};
+
+const cosineSimilarity = (vec1, vec2) => {
+  return (
+    dotProduct(vec1, vec2) / (vectorMagnitude(vec1) * vectorMagnitude(vec2))
+  );
+};
+
+const getSemantleAPI = async (answerWord, guessWord) => {
   const resp = await fetch(
     `https://legacy.semantle.com/model2/${answerWord}/${guessWord}`,
   );
   if (!resp.ok) {
-    res.sendStatus(502);
-    return;
+    throw new Error(`Bad status ${resp.status}`);
   }
-  const data = await resp.json();
-  res.send(JSON.stringify(data));
-  res.sendStatus(200);
-});
+  return await resp.json();
+};
+
+const checkSimilarity = async (answerWord, answerVector, guessWord) => {
+  const data = await getSemantleAPI(answerWord, guessWord);
+  return {
+    guess: guessWord,
+    similarity: cosineSimilarity(data.vec, answerVector) * 100,
+    percentile: data.percentile,
+  };
+};
 
 const games = {};
 
@@ -58,25 +78,45 @@ app.use("/api/v0/websocket", async (req, res) => {
       ws.close();
       return;
     }
+    const answer = "revelation";
     const game = games[req.query.team] || {
       conns: [],
+      answer: answer,
+      answerVector: (await getSemantleAPI(answer, answer)).vec,
+      guesses: [],
     };
     games[req.query.team] = game;
+    for (const guess of game.guesses) {
+      ws.send(JSON.stringify(guess));
+    }
     ws.on("close", () => {
       game.conns = game.conns.filter((conn) => conn !== ws);
     });
-    ws.on("message", (msg) => {
-      // Put an upper limit on messages, for sanity.
-      if (msg.length > 4096) {
-        return;
-      }
-      // Broadcast received message to all other connected clients.
-      for (const conn of game.conns) {
-        // Don't echo message back to the client that sent it.
-        if (conn === ws) {
-          continue;
+    ws.on("message", async (msg) => {
+      try {
+        if (msg.length > 4096) {
+          return;
         }
-        conn.send(msg);
+        msg = JSON.parse(msg);
+        switch (msg.msg) {
+          case "guess":
+            const guessResult = await checkSimilarity(
+              game.answer,
+              game.answerVector,
+              msg.guess,
+            );
+            game.guesses.push(guessResult);
+            const toSend = JSON.stringify(guessResult);
+            for (const conn of game.conns) {
+              conn.send(toSend);
+            }
+            break;
+          default:
+            ws.send(JSON.stringify({ msg: "error", error: "bad msg type" }));
+        }
+      } catch (err) {
+        ws.send(JSON.stringify({ msg: "error", error: "internal error" }));
+        console.error(err);
       }
     });
     game.conns.push(ws);

@@ -4,7 +4,12 @@
   "author": "Radian LLC <contact+copymantle@radian.codes>",
   "license": "MIT",
   "description": "Semantle ripoff",
+  "scripts": {
+    "start": "node server.mjs",
+    "watch": "watchexec -r -e html,mjs -w static -w server.mjs npm start"
+  },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "tinyws": "^0.1.0"
   }
 }

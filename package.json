@@ -6,7 +6,7 @@
   "description": "Semantle ripoff",
   "scripts": {
     "start": "node server.mjs",
-    "watch": "watchexec -r -e html,mjs -w static -w server.mjs npm start"
+    "watch": "watchexec -r -e mjs -w static -w server.mjs npm start"
   },
   "dependencies": {
     "express": "^5.1.0",

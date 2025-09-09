@@ -11,7 +11,7 @@ WORKDIR /src
 COPY package.json package-lock.json /src/
 RUN npm ci
 
-COPY server.mjs /src/
+COPY server.mjs websocket.mjs /src/
 COPY static/ /src/static/
 
 ENV SLEEPING_BEAUTY_COMMAND="HOST=0.0.0.0 PORT=8081 node server.mjs"

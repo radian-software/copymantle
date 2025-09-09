@@ -6,10 +6,10 @@
   "description": "Semantle ripoff",
   "scripts": {
     "start": "node server.mjs",
-    "watch": "watchexec -r -e mjs -w static -w server.mjs npm start"
+    "watch": "watchexec -r -e mjs -w static -w server.mjs -w websocket.mjs node server.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "tinyws": "^0.1.0"
+    "ws": "^8.18.3"
   }
 }

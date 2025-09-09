@@ -3,12 +3,12 @@ import * as process from "process";
 import * as url from "url";
 
 import express from "express";
-import { tinyws } from "tinyws";
+
+import { handleUpgrade } from "./websocket.mjs";
 
 const thisDir = path.dirname(url.fileURLToPath(import.meta.url));
 
 const app = express();
-app.use(tinyws());
 
 app.get("/", (req, res) => {
   if (req.query.team) {
@@ -171,4 +171,9 @@ app.use("/api/v0/websocket", async (req, res) => {
   }
 });
 
-app.listen(parseInt(process.env.PORT) || 3000, process.env.HOST || "0.0.0.0");
+const port = parseInt(process.env.PORT) || 3000;
+const host = process.env.HOST || "0.0.0.0";
+
+const server = app.listen(port, host);
+server.on("upgrade", handleUpgrade(app));
+console.log(`listening on http://${host}:${port}`);

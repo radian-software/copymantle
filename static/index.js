@@ -38,6 +38,7 @@ const submitGuess = () => {
   const input = document.getElementById("guess");
   if (alreadyGuessed.has(input.value)) {
     showMessage(`Already guessed: ${input.value}`);
+    input.value = "";
     return;
   }
   ws.send(JSON.stringify({ msg: "guess", guess: input.value }));
@@ -73,13 +74,16 @@ ws.onmessage = (msg) => {
       numGuesses += 1;
       const row = document.createElement("tr");
       for (const elt of [
-        numGuesses,
-        guess.guess,
-        guess.similarity.toFixed(2),
-        formatPercentile(guess.similarity, guess.percentile),
+        { text: numGuesses },
+        { text: guess.guess },
+        { text: guess.similarity.toFixed(2), key: guess.similarity },
+        { text: formatPercentile(guess.similarity, guess.percentile) },
       ]) {
         const cell = document.createElement("td");
-        cell.appendChild(document.createTextNode(elt));
+        cell.appendChild(document.createTextNode(elt.text));
+        if (elt.key) {
+          cell.setAttribute("sorttable_customkey", elt.key);
+        }
         row.appendChild(cell);
       }
       document.querySelector("tbody").appendChild(row);

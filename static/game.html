@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Copymantle</title>
     <link
       rel="stylesheet"
@@ -10,55 +11,57 @@
     <link rel="stylesheet" href="/game.css" />
   </head>
   <body>
-    <div>Copy the url to share this game</div>
-    <form action="javascript:submitGuess()">
-      <label for="guess">Guess:</label>
-      <input
-        id="guess-input"
-        name="guess"
-        type="text"
-        autocomplete="off"
-        autofocus
-      />
-      <input type="submit" value="Submit" />
-    </form>
-    <div id="message-area"></div>
-    <table>
-      <thead>
-        <tr id="guess-table-header">
-          <th
-            onclick="changeGuessesTableSorting.apply(this)"
-            data-field="number"
-            data-sort-default="descending"
-          >
-            #
-          </th>
-          <th
-            onclick="changeGuessesTableSorting.apply(this)"
-            data-field="guess"
-            data-sort-default="ascending"
-          >
-            Guess
-          </th>
-          <th
-            onclick="changeGuessesTableSorting.apply(this)"
-            data-field="similarity"
-            data-sort-default="descending"
-            data-sort="descending"
-          >
-            Similarity
-          </th>
-          <th
-            onclick="changeGuessesTableSorting.apply(this)"
-            data-field="near"
-            data-sort-default="descending"
-          >
-            Near?
-          </th>
-        </tr>
-      </thead>
-      <tbody id="guess-table-body"></tbody>
-    </table>
+    <section class="section">
+      <div>Copy the url to share this game</div>
+      <form action="javascript:submitGuess()">
+        <label for="guess">Guess:</label>
+        <input
+          id="guess-input"
+          name="guess"
+          type="text"
+          autocomplete="off"
+          autofocus
+        />
+        <input type="submit" value="Submit" />
+      </form>
+      <div id="message-area"></div>
+      <table class="table">
+        <thead>
+          <tr id="guess-table-header">
+            <th
+              onclick="changeGuessesTableSorting.apply(this)"
+              data-field="number"
+              data-sort-default="descending"
+            >
+              #
+            </th>
+            <th
+              onclick="changeGuessesTableSorting.apply(this)"
+              data-field="guess"
+              data-sort-default="ascending"
+            >
+              Guess
+            </th>
+            <th
+              onclick="changeGuessesTableSorting.apply(this)"
+              data-field="similarity"
+              data-sort-default="descending"
+              data-sort="descending"
+            >
+              Similarity
+            </th>
+            <th
+              onclick="changeGuessesTableSorting.apply(this)"
+              data-field="near"
+              data-sort-default="descending"
+            >
+              Near?
+            </th>
+          </tr>
+        </thead>
+        <tbody id="guess-table-body"></tbody>
+      </table>
+    </section>
     <script src="/game.js"></script>
   </body>
 </html>

@@ -1,3 +1,7 @@
+body {
+  width: 100vw;
+}
+
 #guess-table-header [data-sort="ascending"]::before {
   content: "▲";
 }

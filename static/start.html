@@ -2,18 +2,36 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Copymantle</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
     />
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div>Bootleg Semantle clone because the official one keeps breaking</div>
-    <form>
-      <label for="team">Team name:</label>
-      <input name="team" type="text" autocomplete="off" autofocus />
-      <input type="submit" value="Start" />
-    </form>
+    <section>
+      <div class="container page p-3">
+        <p class="mb-2">
+          Bootleg Semantle clone because the official one keeps breaking
+        </p>
+        <form>
+          <div class="field">
+            <label for="team" class="label">Team name:</label>
+            <input
+              name="team"
+              class="input"
+              type="text"
+              autocomplete="off"
+              autofocus
+            />
+          </div>
+          <div class="field">
+            <input type="submit" class="control button is-link" value="Start" />
+          </div>
+        </form>
+      </div>
+    </section>
   </body>
 </html>

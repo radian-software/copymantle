@@ -8,59 +8,70 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
     />
-    <link rel="stylesheet" href="/game.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <section class="section">
-      <p class="mb-2">Copy the url to share this game</p>
-      <form action="javascript:submitGuess()">
-        <label for="guess">Guess:</label>
-        <input
-          id="guess-input"
-          name="guess"
-          type="text"
-          autocomplete="off"
-          autofocus
-        />
-        <input type="submit" value="Submit" />
-      </form>
-      <div id="message-area"></div>
-      <table id="guesses-table" class="table">
-        <thead>
-          <tr id="guesses-table-header">
-            <th
-              onclick="changeGuessesTableSorting.apply(this)"
-              data-field="number"
-              data-sort-default="descending"
-            >
-              #
-            </th>
-            <th
-              onclick="changeGuessesTableSorting.apply(this)"
-              data-field="guess"
-              data-sort-default="ascending"
-            >
-              Guess
-            </th>
-            <th
-              onclick="changeGuessesTableSorting.apply(this)"
-              data-field="similarity"
-              data-sort-default="descending"
-              data-sort="descending"
-            >
-              Similarity
-            </th>
-            <th
-              onclick="changeGuessesTableSorting.apply(this)"
-              data-field="near"
-              data-sort-default="descending"
-            >
-              Near?
-            </th>
-          </tr>
-        </thead>
-        <tbody id="guesses-table-body"></tbody>
-      </table>
+    <section>
+      <div class="container page p-3">
+        <p class="mb-2">Copy the url to share this game</p>
+        <form action="javascript:submitGuess()">
+          <div id="guess-form-fields" class="field has-addons">
+            <div class="control is-expanded">
+              <input
+                id="guess-input"
+                name="guess"
+                class="input"
+                type="text"
+                placeholder="Enter a word"
+                autocomplete="off"
+                autofocus
+              />
+            </div>
+            <div class="control">
+              <input type="submit" class="control button" value="Submit" />
+            </div>
+          </div>
+        </form>
+        <div id="message-area"></div>
+        <div id="guesses-table-container" class="container">
+          <table id="guesses-table" class="table">
+            <thead>
+              <tr id="guesses-table-header">
+                <th
+                  onclick="changeGuessesTableSorting.apply(this)"
+                  data-field="number"
+                  data-sort-default="descending"
+                >
+                  #
+                </th>
+                <th
+                  onclick="changeGuessesTableSorting.apply(this)"
+                  data-field="guess"
+                  data-sort-default="ascending"
+                >
+                  Guess
+                </th>
+                <th
+                  onclick="changeGuessesTableSorting.apply(this)"
+                  data-field="similarity"
+                  data-sort-default="descending"
+                  data-sort="descending"
+                >
+                  Similarity
+                </th>
+                <th
+                  onclick="changeGuessesTableSorting.apply(this)"
+                  data-field="near"
+                  data-sort-default="descending"
+                >
+                  Near?
+                </th>
+              </tr>
+            </thead>
+            <tbody id="guesses-table-body"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
     <script src="/game.js"></script>
   </body>

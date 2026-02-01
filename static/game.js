@@ -137,15 +137,16 @@ const submitGuess = () => {
   if (connectionLost) {
     return;
   }
-  if (!elts.guessInput.value) {
+  const word = elts.guessInput.value.toLowerCase().trim();
+  if (!word) {
     return;
   }
-  if (alreadyGuessed.has(elts.guessInput.value)) {
-    showMessage(`Already guessed: ${elts.guessInput.value}`);
+  if (alreadyGuessed.has(word)) {
+    showMessage(`Already guessed: ${word}`);
     elts.guessInput.value = "";
     return;
   }
-  ws.send(JSON.stringify({ msg: "guess", guess: elts.guessInput.value }));
+  ws.send(JSON.stringify({ msg: "guess", guess: word }));
   elts.guessInput.value = "";
 };
 
@@ -166,7 +167,10 @@ ws.onmessage = (msg) => {
         { text: numGuesses },
         { text: guess.guess },
         { text: guess.similarity.toFixed(2), key: guess.similarity },
-        { text: formatPercentile(guess.similarity, guess.percentile) },
+        {
+          text: formatPercentile(guess.similarity, guess.percentile),
+          key: guess.similarity,
+        },
       ]) {
         const cell = document.createElement("td");
         cell.appendChild(document.createTextNode(elt.text));

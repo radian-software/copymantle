@@ -1,5 +1,15 @@
-body {
-  width: 100vw;
+.page {
+  max-width: 512px !important;
+}
+
+#message-area {
+  min-height: 36px;
+  text-align: center;
+  padding-top: 6px;
+}
+
+#guesses-table {
+  width: 100%;
 }
 
 #guesses-table-header [data-sort="ascending"]::before {

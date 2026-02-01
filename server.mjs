@@ -22,8 +22,8 @@ app.get("/game.js", (_req, res) => {
   res.sendFile(`${thisDir}/static/game.js`);
 });
 
-app.get("/game.css", (_req, res) => {
-  res.sendFile(`${thisDir}/static/game.css`);
+app.get("/style.css", (_req, res) => {
+  res.sendFile(`${thisDir}/static/style.css`);
 });
 
 const vectorSum = (vec) => {

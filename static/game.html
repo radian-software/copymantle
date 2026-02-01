@@ -12,7 +12,7 @@
   </head>
   <body>
     <section class="section">
-      <div>Copy the url to share this game</div>
+      <p class="mb-2">Copy the url to share this game</p>
       <form action="javascript:submitGuess()">
         <label for="guess">Guess:</label>
         <input
@@ -25,9 +25,9 @@
         <input type="submit" value="Submit" />
       </form>
       <div id="message-area"></div>
-      <table class="table">
+      <table id="guesses-table" class="table">
         <thead>
-          <tr id="guess-table-header">
+          <tr id="guesses-table-header">
             <th
               onclick="changeGuessesTableSorting.apply(this)"
               data-field="number"
@@ -59,7 +59,7 @@
             </th>
           </tr>
         </thead>
-        <tbody id="guess-table-body"></tbody>
+        <tbody id="guesses-table-body"></tbody>
       </table>
     </section>
     <script src="/game.js"></script>

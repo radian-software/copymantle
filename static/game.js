@@ -6,8 +6,8 @@
 
 let elts = {
   guessTable: {
-    headers: document.getElementById("guess-table-header").children,
-    body: document.getElementById("guess-table-body"),
+    headers: document.getElementById("guesses-table-header").children,
+    body: document.getElementById("guesses-table-body"),
     fields: [],
     fieldIndexes: {},
   },
@@ -63,6 +63,11 @@ const reverseSortDirection = (direction) => {
   }
 };
 
+const getRowField = (row, field) => {
+  const idx = elts.guessTable.fieldIndexes[field];
+  return row.children[idx].getAttribute("data-sortkey");
+};
+
 // GLOBAL VARIABLES
 
 let numGuesses = 0;
@@ -92,6 +97,10 @@ const resortTable = () => {
   const fieldIndex = elts.guessTable.fieldIndexes[sort.field];
   const rows = [...elts.guessTable.body.children];
   rows.sort((r1, r2) => {
+    let n1 = getRowField(r1, "number");
+    let n2 = getRowField(r2, "number");
+    if (parseInt(n1) === numGuesses) return -1;
+    if (parseInt(n2) === numGuesses) return +1;
     let k1 = r1.children[fieldIndex].getAttribute("data-sortkey");
     let k2 = r2.children[fieldIndex].getAttribute("data-sortkey");
     k1 = parseFloat(k1) || k1;

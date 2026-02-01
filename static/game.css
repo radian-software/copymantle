@@ -1,0 +1,7 @@
+#guess-table-header [data-sort="ascending"]::before {
+  content: "▲";
+}
+
+#guess-table-header [data-sort="descending"]::before {
+  content: "▼";
+}

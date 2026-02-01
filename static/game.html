@@ -7,27 +7,58 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
     />
+    <link rel="stylesheet" href="/game.css" />
   </head>
   <body>
     <div>Copy the url to share this game</div>
     <form action="javascript:submitGuess()">
       <label for="guess">Guess:</label>
-      <input id="guess" name="guess" type="text" autocomplete="off" autofocus />
+      <input
+        id="guess-input"
+        name="guess"
+        type="text"
+        autocomplete="off"
+        autofocus
+      />
       <input type="submit" value="Submit" />
     </form>
-    <div id="message"></div>
-    <table class="sortable">
+    <div id="message-area"></div>
+    <table>
       <thead>
-        <tr>
-          <th class="sorttable_numeric">#</th>
-          <th class="sorttable_alpha">Guess</th>
-          <th class="sorttable_numeric" id="similarity">Similarity</th>
-          <th class="sorttable_nosort">Near?</th>
+        <tr id="guess-table-header">
+          <th
+            onclick="changeGuessesTableSorting.apply(this)"
+            data-field="number"
+            data-sort-default="descending"
+          >
+            #
+          </th>
+          <th
+            onclick="changeGuessesTableSorting.apply(this)"
+            data-field="guess"
+            data-sort-default="ascending"
+          >
+            Guess
+          </th>
+          <th
+            onclick="changeGuessesTableSorting.apply(this)"
+            data-field="similarity"
+            data-sort-default="descending"
+            data-sort="descending"
+          >
+            Similarity
+          </th>
+          <th
+            onclick="changeGuessesTableSorting.apply(this)"
+            data-field="near"
+            data-sort-default="descending"
+          >
+            Near?
+          </th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="guess-table-body"></tbody>
     </table>
-    <script src="/sorttable.js"></script>
-    <script src="/index.js"></script>
+    <script src="/game.js"></script>
   </body>
 </html>

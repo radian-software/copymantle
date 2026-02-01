@@ -18,12 +18,12 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/index.js", (_req, res) => {
-  res.sendFile(`${thisDir}/static/index.js`);
+app.get("/game.js", (_req, res) => {
+  res.sendFile(`${thisDir}/static/game.js`);
 });
 
-app.get("/sorttable.js", (_req, res) => {
-  res.sendFile(`${thisDir}/static/sorttable.js`);
+app.get("/game.css", (_req, res) => {
+  res.sendFile(`${thisDir}/static/game.css`);
 });
 
 const vectorSum = (vec) => {

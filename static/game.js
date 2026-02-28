@@ -43,7 +43,7 @@ ws.onmessage = console.log;
 // UTILITY FUNCTIONS
 
 const formatPercentile = (sim, pct) => {
-  if (sim === 100) {
+  if (pct === 1000) {
     return `You win! 🎉`;
   }
   if (pct) {

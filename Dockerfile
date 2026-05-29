@@ -1,10 +1,10 @@
 FROM radiansoftware/sleeping-beauty:v4.1.0 AS sleepingd
 
-# EOL: April 2029
-FROM ubuntu:24.04
+# EOL: April 2031
+FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash && rm -rf /var/lib/apt/lists/*
+RUN curl -sL https://deb.nodesource.com/setup_26.x | bash && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install -y nodejs tini && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src

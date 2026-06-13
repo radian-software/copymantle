@@ -2,6 +2,12 @@
 
 "use strict";
 
+let myPlayerID = localStorage.getItem("copymantleClientUUID");
+if (!myPlayerID) {
+  myPlayerID = crypto.randomUUID();
+  localStorage.setItem("copymantleClientUUID", myPlayerID);
+}
+
 // LOOKUP HTML ELEMENTS
 
 let elts = {
@@ -141,7 +147,7 @@ const submitGuess = () => {
     elts.guessInput.value = "";
     return;
   }
-  ws.send(JSON.stringify({ msg: "guess", guess: word }));
+  ws.send(JSON.stringify({ msg: "guess", guess: word, player: myPlayerID }));
   elts.guessInput.value = "";
 };
 
@@ -174,10 +180,16 @@ const setupConnection = () => {
         }
         alreadyGuessed.add(guess.guess);
         numGuesses += 1;
+        if (msg.player !== myPlayerID) {
+          // Show the player emojis only once there is more than one
+          // player, that way you don't need to see them if it's just
+          // a single player game.
+          elts.guessTable.body.classList.add("show-player-emojis");
+        }
         const row = document.createElement("tr");
         for (const elt of [
           { text: numGuesses },
-          { text: guess.guess },
+          { text: guess.guess, addEmoji: true },
           { text: guess.similarity.toFixed(2), key: guess.similarity },
           {
             text: formatPercentile(guess.similarity, guess.percentile),
@@ -187,6 +199,12 @@ const setupConnection = () => {
           const cell = document.createElement("td");
           cell.appendChild(document.createTextNode(elt.text));
           cell.setAttribute("data-sortkey", elt.key || elt.text);
+          if (elt.addEmoji) {
+            const span = document.createElement("span");
+            span.appendChild(document.createTextNode(msg.playerEmoji));
+            span.classList.add("guess-player-emoji");
+            cell.appendChild(span);
+          }
           row.appendChild(cell);
         }
         document.querySelector("tbody").appendChild(row);

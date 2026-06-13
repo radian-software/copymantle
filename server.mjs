@@ -97,6 +97,30 @@ const getSecretWord = async () => {
   return secretWords[puzzleNumber % secretWords.length];
 };
 
+// prettier-ignore
+// https://github.com/AnshSinghSonkhia/random-emoji-picker/blob/23eac2244861b3fe1478317313272495ef7711d1/src/emojiDatabase.js
+const availableEmojis = [
+  "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐸", "🐵",
+  "🦁", "🐯", "🐷", "🐮", "🐨", "🦄", "🐺", "🐢", "🐊", "🐙",
+  "🦉", "🦦", "🦘", "🐞", "🦋", "🐍", "🐠", "🐬", "🦜", "🦥",
+
+  "🍕", "🍔", "🍎", "🍉", "🍩", "🌮", "🥗", "🍣", "🍪", "🥞",
+  "🍜", "🥑", "🍞", "🥕", "🧁", "🍗", "🥩", "🌭", "🧀", "🍇",
+  "🍓", "🥒", "🌰", "🥥", "🍫", "🍹", "🍷",
+
+  "🌲", "🌿", "🌸", "🌊", "🔥", "🏔️", "🌎", "☀️", "🌧️", "🌈",
+  "🍂", "🍃", "🌱", "🌻", "🌵", "🌳", "🌼", "🪵", "🌪️", "🌀",
+  "🌙", "☄️", "⛰️", "🏜️", "🌍", "🌑", "🪲", "🦠", "🍄",
+
+  "🚗", "✈️", "🚆", "🛳️", "🚀", "🏝️", "🏕️", "🗽", "🗼", "🎡",
+  "🚜", "🚂", "🛫", "🚘", "🚌", "🚠", "🛤️", "🚍", "🚉", "🛩️",
+  "⛴️", "🚛", "🚙", "🏎️", "🛑", "🚖", "🚎", "🚲", "🛣️", "🛶",
+
+  "💾", "💿", "📀", "📡", "🖥️", "🖨️", "🖱️", "💻", "🔋", "📶",
+  "🔌", "🔧", "🔨", "⚙️", "🛠️", "📱", "📷", "🎥", "📺", "🎞️",
+  "💡", "🔭", "🎛️", "⏳", "🧬", "🛰️", "🕹️", "🖇️",
+];
+
 const games = {};
 
 app.use("/api/v0/websocket", async (req, res) => {
@@ -119,10 +143,12 @@ app.use("/api/v0/websocket", async (req, res) => {
       answerVector: (await getSemantleAPI(answer, answer)).vec,
       guesses: [],
       alreadyGuessed: new Set(),
+      players: {},
+      usedEmojis: new Set(),
     };
     games[req.query.team] = game;
-    for (const guess of game.guesses) {
-      ws.send(JSON.stringify({ msg: "guess", guess: guess }));
+    for (const guessMsg of game.guesses) {
+      ws.send(JSON.stringify(guessMsg));
     }
     ws.send(JSON.stringify({ msg: "setup" }));
     ws.on("close", () => {
@@ -136,6 +162,25 @@ app.use("/api/v0/websocket", async (req, res) => {
         msg = JSON.parse(msg);
         switch (msg.msg) {
           case "guess":
+            const player = msg.player;
+            if (player && !game.players[player]) {
+              while (true) {
+                const emoji =
+                  availableEmojis[
+                    Math.floor(Math.random() * availableEmojis.length)
+                  ];
+                // Stop trying to avoid reusing emojis once we get to to 75% utilization
+                // and it will become computationally annoying to do so efficiently.
+                if (
+                  !game.usedEmojis.has(emoji) ||
+                  game.usedEmojis.size >= availableEmojis.length * 0.75
+                ) {
+                  game.players[player] = emoji;
+                  game.usedEmojis.add(emoji);
+                  break;
+                }
+              }
+            }
             const guess = msg.guess.toLowerCase();
             if (game.alreadyGuessed.has(guess)) {
               break;
@@ -150,9 +195,15 @@ app.use("/api/v0/websocket", async (req, res) => {
               break;
             }
             game.alreadyGuessed.add(guessResult.guess);
-            game.guesses.push(guessResult);
-            const toSend = JSON.stringify({ msg: "guess", guess: guessResult });
+            const guessMsg = {
+              msg: "guess",
+              guess: guessResult,
+              player: player,
+              playerEmoji: game.players[player] || "❓️",
+            };
+            game.guesses.push(guessMsg);
             for (const conn of game.conns) {
+              const toSend = JSON.stringify(guessMsg);
               conn.send(toSend);
             }
             break;

@@ -28,17 +28,9 @@ if (location.protocol === "https:") {
   proto = "wss";
 }
 
-let connectionLost = false;
+let connectionLost = true;
 
-const ws = new WebSocket(
-  `${proto}://${location.host}/api/v0/websocket` + location.search,
-);
-ws.onclose = () => {
-  connectionLost = true;
-  showMessage("Connection lost, please reload page");
-};
-ws.onerror = console.error;
-ws.onmessage = console.log;
+let ws;
 
 // UTILITY FUNCTIONS
 
@@ -155,50 +147,70 @@ const submitGuess = () => {
 
 // HANDLE SERVER MESSAGES
 
-ws.onmessage = (msg) => {
-  msg = JSON.parse(msg.data);
-  switch (msg.msg) {
-    case "guess":
-      const guess = msg.guess;
-      if (alreadyGuessed.has(guess)) {
+const setupConnection = () => {
+  ws = new WebSocket(
+    `${proto}://${location.host}/api/v0/websocket` + location.search,
+  );
+  ws.onopen = () => {
+    connectionLost = false;
+    document.querySelector("tbody").textContent = "";
+    numGuesses = 0;
+    showMessage("");
+  };
+  ws.onerror = (err) => {
+    console.error("websocket disconnected:", err);
+    connectionLost = true;
+    setupDone = false;
+    setTimeout(setupConnection, 500);
+    showMessage("Reconnecting...");
+  };
+  ws.onmessage = (msg) => {
+    msg = JSON.parse(msg.data);
+    switch (msg.msg) {
+      case "guess":
+        const guess = msg.guess;
+        if (alreadyGuessed.has(guess)) {
+          break;
+        }
+        alreadyGuessed.add(guess.guess);
+        numGuesses += 1;
+        const row = document.createElement("tr");
+        for (const elt of [
+          { text: numGuesses },
+          { text: guess.guess },
+          { text: guess.similarity.toFixed(2), key: guess.similarity },
+          {
+            text: formatPercentile(guess.similarity, guess.percentile),
+            key: guess.similarity,
+          },
+        ]) {
+          const cell = document.createElement("td");
+          cell.appendChild(document.createTextNode(elt.text));
+          cell.setAttribute("data-sortkey", elt.key || elt.text);
+          row.appendChild(cell);
+        }
+        document.querySelector("tbody").appendChild(row);
+        showMessage("");
+        if (setupDone) {
+          resortTable();
+        }
         break;
-      }
-      alreadyGuessed.add(guess.guess);
-      numGuesses += 1;
-      const row = document.createElement("tr");
-      for (const elt of [
-        { text: numGuesses },
-        { text: guess.guess },
-        { text: guess.similarity.toFixed(2), key: guess.similarity },
-        {
-          text: formatPercentile(guess.similarity, guess.percentile),
-          key: guess.similarity,
-        },
-      ]) {
-        const cell = document.createElement("td");
-        cell.appendChild(document.createTextNode(elt.text));
-        cell.setAttribute("data-sortkey", elt.key || elt.text);
-        row.appendChild(cell);
-      }
-      document.querySelector("tbody").appendChild(row);
-      showMessage("");
-      if (setupDone) {
+      case "badword":
+        showMessage(`Unknown word: ${msg.guess}`);
+        break;
+      case "error":
+        console.error(msg.error);
+        alert(`unexpected error: ${msg.error}`);
+        break;
+      case "setup":
         resortTable();
-      }
-      break;
-    case "badword":
-      showMessage(`Unknown word: ${msg.guess}`);
-      break;
-    case "error":
-      console.error(msg.error);
-      alert(`unexpected error: ${msg.error}`);
-      break;
-    case "setup":
-      resortTable();
-      setupDone = true;
-      break;
-    default:
-      console.error("bad msg type");
-      break;
-  }
+        setupDone = true;
+        break;
+      default:
+        console.error("bad msg type");
+        break;
+    }
+  };
 };
+
+setupConnection();
